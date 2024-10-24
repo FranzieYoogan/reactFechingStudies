@@ -1,0 +1,19 @@
+.containerAll {
+
+    display: flex;
+    justify-content: center;
+
+}
+
+.formStyle {
+
+    margin-top: 5em;
+    width: 300px;
+}
+
+.divResult {
+
+    display: flex;
+    justify-content: center;
+    margin-top: 5em;
+}

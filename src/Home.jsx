@@ -7,7 +7,8 @@ function Home() {
 
 
   const [inputValue,setInputValue] = useState('')
-
+  const [serverData,setData] = useState(null)
+  const [errorMessage,setErrorMEssage] = useState('')
 
   const handleInput = (event) => {
     event.preventDefault()
@@ -28,20 +29,16 @@ function Home() {
 
   .then(data => {
 
-    const divResult = document.getElementById('divResult')
+    setData(data)
     
-    if(data.online) {
 
-        divResult.innerHTML = `
-        
-        <div>
-        <h2 className="spaceThing">Server Status: ${data.online}</h2>
-        <h2 className="spaceThing">mineVersion: ${data.version}</h2>
-        <h2 className="spaceThing">Number of PLayers: ${data.players.online} Max players: ${data.players.max}</h2>
-        </div>
-        `
-    }
+  })
 
+  .catch(error => {
+
+    console.log(error,"Fetching error")
+    setData(null)
+    setErrorMEssage('server not found')
   })
 
    
@@ -81,11 +78,28 @@ function Home() {
         
         <div className="divResult" id="divResult">
 
-       
-
-
-        </div>
-
+        {errorMessage ? (
+          <div>
+            <h2>{errorMessage}</h2>
+          </div>
+        ) : serverData ? (
+          serverData.online ? (
+            <div>
+              <h2 className="spaceThing status">Server Status: Online</h2>
+              <h2 className="spaceThing">Mine Version: {serverData.version}</h2>
+              <h2 className="spaceThing">Number of Players: {serverData.players.online} Max Players: {serverData.players.max}</h2>
+            </div>
+          ) : (
+            <div>
+              <h2>Status: Offline</h2>
+            </div>
+          )
+        ) : (
+          <div>
+            <h2>Status: Unknown</h2>
+          </div>
+        )}
+      </div>
         </>
 
     )

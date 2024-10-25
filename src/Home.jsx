@@ -1,109 +1,80 @@
-import { useEffect, useState } from "react"
-import Header from "./Header"
-import axios from 'axios'
-import './assets/home.css'
+import { useState } from "react";
+import Header from "./Header";
+import axios from 'axios';
+import './assets/home.css';
 
 function Home() {
-
-
-  const [inputValue,setInputValue] = useState('')
-  const [serverData,setData] = useState(null)
-  const [errorMessage,setErrorMEssage] = useState('')
+  const [inputValue, setInputValue] = useState('');
+  const [serverData, setServerData] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleInput = (event) => {
-    event.preventDefault()
-  const url = `https://api.mcsrvstat.us/3/${inputValue}`
+    event.preventDefault();
+    const url = `https://api.mcsrvstat.us/3/${inputValue}`;
 
-  fetch(url)
-  .then(response => {
+    // Clear previous state
+    setServerData(null);
+    setErrorMessage('');
 
-    if(!response.ok) {
+    axios.get(url)
+      .then(response => {
+        setServerData(response.data);
+      })
+      .catch(error => {
+        console.error(error);
+        setErrorMessage("Server not found or unreachable.");
+      });
+  };
 
-        throw new Error("Network response Fails")
+  return (
+    <>
+      <Header />
 
-    }
-
-    return response.json()
-
-  })
-
-  .then(data => {
-
-    setData(data)
-    
-
-  })
-
-  .catch(error => {
-
-    console.log(error,"Fetching error")
-    setData(null)
-    setErrorMEssage('server not found')
-  })
-
-   
-
-  }
-
-
-    
-  
-    
-
-
-    return(
-
-        <>
-
-        <Header></Header>
-
-        <section className="containerAll">
-
-   
-<form className="formStyle max-w-md mx-auto" onSubmit={handleInput}>   
-    <label htmlFor="default-search" className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
-    <div className="relative">
-        <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-            <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-            </svg>
-        </div>
-        <input type="search" onChange={(event) =>setInputValue(event.target.value) } id="default-search" className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search Mockups, Logos..." required />
-        <button type="submit" className="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
-    </div>
-</form>
-
-
-        </section>
-        
-        <div className="divResult" id="divResult">
-
-        {errorMessage ? (
-          <div>
-            <h2>{errorMessage}</h2>
-          </div>
-        ) : serverData ? (
-          serverData.online ? (
-            <div>
-              <h2 className="spaceThing status">Server Status: Online</h2>
-              <h2 className="spaceThing">Mine Version: {serverData.version}</h2>
-              <h2 className="spaceThing">Number of Players: {serverData.players.online} Max Players: {serverData.players.max}</h2>
+      <section className="containerAll">
+        <form className="formStyle max-w-md mx-auto" onSubmit={handleInput}>
+          <label htmlFor="default-search" className="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Search</label>
+          <div className="relative">
+            <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+              <svg className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
+              </svg>
             </div>
-          ) : (
-            <div>
-              <h2>Status: Offline</h2>
-            </div>
-          )
-        ) : (
-          <div>
-            <h2>Status: Unknown</h2>
+            <input
+              type="search"
+              onChange={(event) => setInputValue(event.target.value)}
+              id="default-search"
+              className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              placeholder="Enter server address..."
+              required
+            />
+            <button type="submit" className="text-white absolute end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Search</button>
           </div>
-        )}
+        </form>
+      </section>
+
+      <div className="divResult" id="divResult">
+        {inputValue ? ( // Check if inputValue is not empty
+          errorMessage ? (
+            <div>
+              <h2>{errorMessage}</h2>
+            </div>
+          ) : serverData ? (
+            serverData.online ? (
+              <div>
+                <h2 className="spaceThing status">Server Status: Online</h2>
+                <h2 className="spaceThing">Mine Version: {serverData.version}</h2>
+                <h2 className="spaceThing">Number of Players: {serverData.players.online} Max Players: {serverData.players.max}</h2>
+              </div>
+            ) : (
+              <div>
+                <h2>Status: Offline</h2>
+              </div>
+            )
+          ) : null 
+        ) : null} 
       </div>
-        </>
-
-    )
-
+    </>
+  );
 }
 
-export default Home
+export default Home;
